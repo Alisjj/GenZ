@@ -16,6 +16,10 @@ class TestHTMLNode(unittest.TestCase):
         self.assertEqual(node.to_html(), "<p>This is a paragraph of text.</p>")
         self.assertEqual(node2.to_html(), '<a href="https://www.google.com">Click me!</a>')
     
+    def test_lead_node_error(self):
+        node = LeafNode(None, None, None)
+        self.assertRaises(ValueError, node.to_html)
+    
     
 if __name__ == "__main__":
     unittest.main()
