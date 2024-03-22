@@ -13,13 +13,13 @@ class TestTextNode(unittest.TestCase):
         node = TextNode("This is a text node", "italic", "https")
         node2 = TextNode("This is a text node", "bold")
         self.assertNotEqual(node, node2)
-    
+
     def test_default_url(self):
         node = TextNode("This is a text node", "italic")
         node2 = TextNode("This is a text node", "bold", "")
         self.assertEqual(node.url, None)
         self.assertNotEqual(node2.url, None)
-    
-    
+
+
 if __name__ == "__main__":
     unittest.main()
