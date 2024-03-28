@@ -1,16 +1,10 @@
 import unittest
 
-from textnode import (
-    TextNode,
-    split_nodes_delimiter,
-    split_nodes_image,
-    extract_markdown_images,
-    extract_markdown_links,
-    text_type_bold,
-    text_type_code,
-    text_type_text,
-    text_type_image,
-)
+from textnode import (TextNode, extract_markdown_images,
+                      extract_markdown_links, split_nodes_delimiter,
+                      split_nodes_image, split_nodes_link, text_to_textnodes,
+                      text_type_bold, text_type_code, text_type_image,
+                      text_type_italic, text_type_link, text_type_text)
 
 
 class TestTextNode(unittest.TestCase):
@@ -32,11 +26,11 @@ class TestTextNode(unittest.TestCase):
 
     def test_split_nodes_delimeter(self):
         node = TextNode("This is text with a `code block` word", text_type_text)
-        node2 = TextNode("This is text with a *bold text* in it", text_type_text)
-        node3 = TextNode("This is *text with* a *bold text* in it", text_type_text)
+        node2 = TextNode("This is *text with a **bold text** in it", text_type_text)
+        node3 = TextNode("This is *text with* a *italic text* in it", text_type_text)
         new_nodes = split_nodes_delimiter([node], "`", text_type_code)
-        new_nodes2 = split_nodes_delimiter([node2], "*", text_type_bold)
-        new_nodes3 = split_nodes_delimiter([node3], "*", text_type_bold)
+        new_nodes2 = split_nodes_delimiter([node2], "**", text_type_bold)
+        new_nodes3 = split_nodes_delimiter([node3], "*", text_type_italic)
 
         self.assertEqual(
             new_nodes,
@@ -50,7 +44,7 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(
             new_nodes2,
             [
-                TextNode("This is text with a ", text_type_text),
+                TextNode("This is *text with a ", text_type_text),
                 TextNode("bold text", text_type_bold),
                 TextNode(" in it", text_type_text),
             ],
@@ -60,9 +54,9 @@ class TestTextNode(unittest.TestCase):
             new_nodes3,
             [
                 TextNode("This is ", text_type_text),
-                TextNode("text with", text_type_bold),
+                TextNode("text with", text_type_italic),
                 TextNode(" a ", text_type_text),
-                TextNode("bold text", text_type_bold),
+                TextNode("italic text", text_type_italic),
                 TextNode(" in it", text_type_text),
             ],
         )
@@ -114,7 +108,42 @@ class TestTextNode(unittest.TestCase):
                 TextNode("This is text with an ", text_type_text),
                 TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
                 TextNode(" that is it", text_type_text),
-                TextNode( "This is text no image", text_type_text)
+                TextNode("This is text no image", text_type_text),
+            ],
+        )
+
+    def test_split_ndoes_link(self):
+        node = TextNode(
+            "This is text with a [link](https://www.example.com) and [another](https://www.example.com/another)",
+            text_type_text,
+        )
+        new_nodes = split_nodes_link([node])
+
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is text with a ", text_type_text),
+                TextNode("link", text_type_link, "https://www.example.com"),
+                TextNode(" and ", text_type_text),
+                TextNode("another", text_type_link, "https://www.example.com/another"),
+            ],
+        )
+
+    def test_text_to_textnodes(self):
+        text = "This is **text** with an *italic* word and a `code block` and an ![image](https://i.imgur.com/zjjcJKZ.png) and a [link](https://boot.dev)"
+        self.assertEqual(
+            text_to_textnodes(text),
+            [
+                TextNode("This is ", text_type_text),
+                TextNode("text", text_type_bold),
+                TextNode(" with an ", text_type_text),
+                TextNode("italic", text_type_italic),
+                TextNode(" word and a ", text_type_text),
+                TextNode("code block", text_type_code),
+                TextNode(" and an ", text_type_text),
+                TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and a ", text_type_text),
+                TextNode("link", text_type_link, "https://boot.dev"),
             ],
         )
 

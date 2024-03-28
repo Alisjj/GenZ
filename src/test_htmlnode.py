@@ -20,6 +20,8 @@ class TestHTMLNode(unittest.TestCase):
             node2.props_to_html(), ' style="{"color": red, "bg-color": green}"'
         )
 
+
+class TestLeafNode(unittest.TestCase):
     def test_leaf_node_render(self):
         node = LeafNode("p", "This is a paragraph of text.")
         node2 = LeafNode("a", "Click me!", {"href": "https://www.google.com"})
@@ -31,6 +33,9 @@ class TestHTMLNode(unittest.TestCase):
     def test_lead_node_error(self):
         node = LeafNode(None, None, None)
         self.assertRaises(ValueError, node.to_html)
+
+
+class TestParentNode(unittest.TestCase):
 
     def test_parent_node(self):
         node = ParentNode(

@@ -69,7 +69,7 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             text = text[closing + len(delimiter) :]
             start_index = text.find(delimiter)
 
-        result.append(TextNode(text, text_type_text))
+        result.append(TextNode(text, node.text_type))
 
     return result
 
@@ -87,6 +87,7 @@ def split_nodes_image(old_nodes):
     for node in old_nodes:
         if not isinstance(node, TextNode):
             result.append(node)
+            continue
         original_text = node.text
         if not original_text:
             continue
@@ -110,4 +111,37 @@ def split_nodes_image(old_nodes):
 
 
 def split_nodes_link(old_nodes):
-    pass
+    result = []
+    for node in old_nodes:
+        if not isinstance(node, TextNode):
+            result.append(node)
+            continue
+        original_text = node.text
+        if not original_text:
+            continue
+        links = extract_markdown_links(original_text)
+        if not links:
+            result.append(node)
+            continue
+
+        while links:
+            link = links.pop(0)
+            text = original_text.split(f"[{link[0]}]({link[1]})", 1)[0]
+            original_text = original_text.split(f"[{link[0]}]({link[1]})", 1)[1]
+            if text:
+                result.append(TextNode(text, text_type_text))
+            result.append(TextNode(link[0], text_type_link, link[1]))
+
+        if original_text:
+            result.append(TextNode(original_text, text_type_text))
+
+    return result
+
+
+def text_to_textnodes(text):
+    text = [TextNode(text, text_type_text)]
+    bold = split_nodes_delimiter(text, "**", text_type_bold)
+    italic = split_nodes_delimiter(bold, "*", text_type_italic)
+    code_block = split_nodes_delimiter(italic, "`", text_type_code)
+    image = split_nodes_image(code_block)
+    return split_nodes_link(image)
