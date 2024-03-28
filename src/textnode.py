@@ -62,11 +62,13 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 )
 
             result.append(TextNode(text[:start_index], text_type_text))
-            result.append(TextNode(text[start_index + len(delimiter): closing], text_type))
+            result.append(
+                TextNode(text[start_index + len(delimiter) : closing], text_type)
+            )
 
-            text = text[closing + len(delimiter):]
+            text = text[closing + len(delimiter) :]
             start_index = text.find(delimiter)
-        
+
         result.append(TextNode(text, text_type_text))
 
     return result
@@ -78,3 +80,34 @@ def extract_markdown_images(text):
 
 def extract_markdown_links(text):
     return re.findall(r"\[(.*?)\]\((.*?)\)", text)
+
+
+def split_nodes_image(old_nodes):
+    result = []
+    for node in old_nodes:
+        if not isinstance(node, TextNode):
+            result.append(node)
+        original_text = node.text
+        if not original_text:
+            continue
+        images = extract_markdown_images(original_text)
+        if not images:
+            result.append(node)
+            continue
+
+        while images:
+            image = images.pop(0)
+            text = original_text.split(f"![{image[0]}]({image[1]})", 1)[0]
+            original_text = original_text.split(f"![{image[0]}]({image[1]})", 1)[1]
+            if text:
+                result.append(TextNode(text, text_type_text))
+            result.append(TextNode(image[0], text_type_image, image[1]))
+
+        if original_text:
+            result.append(TextNode(original_text, text_type_text))
+
+    return result
+
+
+def split_nodes_link(old_nodes):
+    pass

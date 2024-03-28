@@ -3,11 +3,13 @@ import unittest
 from textnode import (
     TextNode,
     split_nodes_delimiter,
+    split_nodes_image,
     extract_markdown_images,
     extract_markdown_links,
     text_type_bold,
     text_type_code,
     text_type_text,
+    text_type_image,
 )
 
 
@@ -82,6 +84,37 @@ class TestTextNode(unittest.TestCase):
             [
                 ("link", "https://www.example.com"),
                 ("another", "https://www.example.com/another"),
+            ],
+        )
+
+    def test_split_nodes_image(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            text_type_text,
+        )
+        node2 = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) that is it",
+            text_type_text,
+        )
+        node3 = TextNode(
+            "This is text no image",
+            text_type_text,
+        )
+        new_nodes = split_nodes_image([node, node2, node3])
+
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is text with an ", text_type_text),
+                TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", text_type_text),
+                TextNode(
+                    "second image", text_type_image, "https://i.imgur.com/3elNhQu.png"
+                ),
+                TextNode("This is text with an ", text_type_text),
+                TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" that is it", text_type_text),
+                TextNode( "This is text no image", text_type_text)
             ],
         )
 
