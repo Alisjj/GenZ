@@ -153,35 +153,46 @@ def block_to_block_type(block: str):
         if len(qoute) == block.count(">"):
             return block_type_quote
     if unordered_list:
-        if len(unordered_list) == block.count("\n"):
-            return block_type_unordered_list
+        # if len(unordered_list) == block.count("\n"):
+        return block_type_unordered_list
     if ordered_list:
-        if len(ordered_list) == block.count("\n"):
-            return block_type_ordered_list
+        # if len(ordered_list) == block.count("\n"):
+        return block_type_ordered_list
     
     return block_type_paragraph
 
 def block_to_p_tag(block):
-        val = text_to_textnodes(block)
-        children = []
-        for v in val:
-            children.append(text_node_to_html_node(v))
-        return ParentNode("p", children)
+    val = text_to_textnodes(block)
+    children = []
+    for v in val:
+        children.append(text_node_to_html_node(v))
+    return ParentNode("p", children)
 
 def block_to_code(block):
-    text = block.strip("``` ")
-    val = text_to_textnodes(text)
-    value = LeafNode("pre", text)
+    text = block.lstrip("``` ")
+    val = text_to_textnodes(text.rstrip(" ```"))
+    children = []
+    for v in val:
+        children.append(text_node_to_html_node(v))
+    value = ParentNode("pre", children)
     return ParentNode("code", [value])
 
 def block_to_heading(block):
-    return LeafNode(f"h{block.count("#")}", block.lstrip("# "))
+    val = text_to_textnodes(block.lstrip("# "))
+    children = []
+    for v in val:
+        children.append(text_node_to_html_node(v))
+    return ParentNode(f"h{block.count("#")}", children)
 
 def block_to_unordered_list(block):
     children = []
     lines = block.split("\n")
     for line in lines:
-        children.append(LeafNode("li", line.lstrip("-* ")))
+        sub_child = []
+        val = text_to_textnodes(line.lstrip("-*"))
+        for v in val:
+            sub_child.append(text_node_to_html_node(v))
+        children.append(ParentNode("li", sub_child))
     return ParentNode("ul", children)
 
 def block_to_ordered_list(block):
@@ -189,8 +200,12 @@ def block_to_ordered_list(block):
     lines = block.split("\n")
     pattern = r'^[a-zA-Z\d]+\.\s'
     for line in lines:
+        sub_child = []
         stripped = re.sub(pattern, '', line)
-        children.append(LeafNode("li", stripped))
+        val = text_to_textnodes(stripped)
+        for v in val:
+            sub_child.append(text_node_to_html_node(v))
+        children.append(ParentNode("li", sub_child))
     return ParentNode("ol", children)
 
 def block_to_qoute(block):
@@ -198,8 +213,12 @@ def block_to_qoute(block):
     lines = block.split("> ")
     for line in lines:
         if line:
-            children.append(line.lstrip("> "))
-    return LeafNode("blockquote", "".join(children))
+            sub_child = []
+            val = text_to_textnodes(line.lstrip("> "))
+            for v in val:
+                sub_child.append(text_node_to_html_node(v))
+            children.append(ParentNode("span", sub_child))
+    return ParentNode("blockquote", children)
 
 
 def markdown_to_html_node(markdown):
@@ -219,7 +238,6 @@ def markdown_to_html_node(markdown):
             result.append(block_to_ordered_list(block))
         elif block_type == block_type_quote:
             result.append(block_to_qoute(block))
-
     return ParentNode("div", result)
 
 def extract_title(markdown):

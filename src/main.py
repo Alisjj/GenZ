@@ -1,8 +1,7 @@
 import os
 import shutil
 
-from htmlnode import generate_page
-from textnode import TextNode
+from utils import generate_page
 
 
 def copytree(source, destination):
