@@ -1,11 +1,12 @@
 import unittest
 
-from textnode import (TextNode, extract_markdown_images,
-                      extract_markdown_links, markdown_to_blocks,
-                      split_nodes_delimiter, split_nodes_image,
-                      split_nodes_link, text_to_textnodes, text_type_bold,
-                      text_type_code, text_type_image, text_type_italic,
-                      text_type_link, text_type_text)
+from textnode import TextNode
+
+from utils import (extract_markdown_images, extract_markdown_links,
+                    markdown_to_blocks, split_nodes_delimiter,
+                    split_nodes_image, split_nodes_link, text_to_textnodes,
+                    text_type_bold, text_type_code, text_type_image,
+                    text_type_italic, text_type_link, text_type_text)
 
 
 class TestTextNode(unittest.TestCase):
@@ -152,11 +153,12 @@ class TestTextNode(unittest.TestCase):
         doc = "This is **bolded** paragraph \n\n This is another paragraph with *italic* text and `code` here This is the same paragraph on a new line \n\n * This is a list * with items"
 
         self.assertEqual(
-            markdown_to_blocks(doc), [
+            markdown_to_blocks(doc),
+            [
                 "This is **bolded** paragraph",
                 "This is another paragraph with *italic* text and `code` here This is the same paragraph on a new line",
                 "* This is a list * with items",
-            ]
+            ],
         )
 
 
