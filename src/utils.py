@@ -266,3 +266,21 @@ def generate_page(from_path, template_path, dest_path):
     
     with open(dest_path, "w") as dest:
         dest.write(new)
+
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    if not os.path.exists(dir_path_content):
+        raise Exception("Error: Directory Doesn't Exist")
+    
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path)
+    
+    source_list = os.listdir(dir_path_content)
+
+    for d in source_list:
+        if os.path.isfile(os.path.join(dir_path_content, d)):
+            generate_page((os.path.join(dir_path_content, d)), template_path, os.path.join(dest_dir_path, f"{d.split(".")[0]}.html"))
+            continue
+        generate_pages_recursive(os.path.join(dir_path_content, d), template_path, os.path.join(dest_dir_path, d))
+
+    return

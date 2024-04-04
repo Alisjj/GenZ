@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from utils import generate_page
+from utils import generate_pages_recursive
 
 
 def copytree(source, destination):
@@ -19,7 +19,7 @@ def copytree(source, destination):
 
 def main():
     copytree("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 
 main()
